@@ -49,6 +49,10 @@ table{width:100%;border-collapse:collapse}th,td{padding:11px;border-bottom:1px s
 .alert.success{background:rgba(46,125,50,.18);color:#a5d6a7;border:1px solid rgba(76,175,80,.25)}
 .alert.error{background:rgba(198,40,40,.15);color:#ef9a9a;border:1px solid rgba(239,83,80,.25)}
 .alert.info{background:rgba(21,101,192,.15);color:#90caf9;border:1px solid rgba(66,165,245,.2)}
+.alert.warning{background:rgba(255,193,7,.14);color:#ffe082;border:1px solid rgba(255,193,7,.3)}
+.alert.critical{background:rgba(198,40,40,.18);color:#ffb4b4;border:1px solid rgba(239,83,80,.35)}
+.sensor-warning{border-color:rgba(255,193,7,.55)!important;box-shadow:0 0 0 1px rgba(255,193,7,.12),0 10px 35px rgba(0,0,0,.2)}
+
 .top-status{display:flex;align-items:center;gap:10px}.connection-pill{padding:7px 11px;border-radius:20px;background:#172019;color:#a5d6a7;font-size:11px}.connection-pill.offline{color:#ef9a9a;background:#211414}
 .mobile-menu{display:none}.footer{color:#607d70;text-align:center;padding:35px 10px 20px;font-size:11px}
 .record-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.summary-box{background:#08100b;border-radius:12px;padding:15px}.summary-box small{display:block;color:#78909c;margin-bottom:7px}.summary-box strong{font-size:20px}
@@ -104,6 +108,11 @@ table{width:100%;border-collapse:collapse}th,td{padding:11px;border-bottom:1px s
     </div>
 
     <div id="globalAlert" class="alert"></div>
+<div id="sensorAlert" class="alert"></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px">
+    <button class="action secondary" onclick="enableBrowserAlerts()">Enable Browser Notifications + Sound</button>
+</div>
+
 
     <div class="grid grid-4">
         <div class="card sensor-card"><div class="icon-box"><i data-lucide="thermometer"></i></div><div class="card-label">AIR TEMPERATURE</div><div><span class="card-value" id="airTemp">--</span> <span class="card-unit">°C</span></div></div>
@@ -387,12 +396,120 @@ let anonymousUid="";
 let syncTimer=null;
 let latestSensors={};
 let latestControl={};
+let websiteTimerInterval=Number(localStorage.getItem("smartgrow_timer_interval"))||30;
+let websiteTimerDuration=Number(localStorage.getItem("smartgrow_timer_duration"))||1;
 let charts={};
 let sensorHistory=[];
 let plantRecords=[];
 let eventLogs=[];
 let lastSensorSignature="";
 let lastSensorChange=0;
+// Browser alert settings/state.
+// Change these values if you want different warning limits.
+const ALERT_TEMP_C = 35;
+const ALERT_HUMIDITY_PERCENT = 80;
+let browserAlertsEnabled = false;
+let alertAudioContext = null;
+let lastAlertState = {water:true,temp:false,humidity:false};
+
+async function enableBrowserAlerts(){
+    try{
+        if("Notification" in window){
+            const permission=await Notification.requestPermission();
+            if(permission==="denied"){
+                showAlert("globalAlert","Browser notifications are blocked. Allow notifications for this site in Chrome settings.","warning");
+            }
+        }
+        const AudioCtx=window.AudioContext||window.webkitAudioContext;
+        if(AudioCtx){
+            alertAudioContext=alertAudioContext||new AudioCtx();
+            if(alertAudioContext.state==="suspended") await alertAudioContext.resume();
+            // Short silent-ish initialization beep to unlock audio after user action.
+            playAlertSound("info");
+        }
+        browserAlertsEnabled=true;
+        showAlert("globalAlert","Browser notifications and alert sound are enabled.","success");
+    }catch(error){
+        console.error("Alert setup failed:",error);
+        showAlert("globalAlert","Could not enable browser alerts: "+error.message,"error");
+    }
+}
+
+function playAlertSound(type="warning"){
+    try{
+        const AudioCtx=window.AudioContext||window.webkitAudioContext;
+        if(!AudioCtx)return;
+        alertAudioContext=alertAudioContext||new AudioCtx();
+        if(alertAudioContext.state==="suspended")return;
+
+        const now=alertAudioContext.currentTime;
+        const osc=alertAudioContext.createOscillator();
+        const gain=alertAudioContext.createGain();
+        osc.type="sine";
+        const freq=type==="critical"?880:(type==="warning"?660:440);
+        osc.frequency.setValueAtTime(freq,now);
+        osc.frequency.exponentialRampToValueAtTime(freq/1.6,now+0.22);
+        gain.gain.setValueAtTime(0.0001,now);
+        gain.gain.exponentialRampToValueAtTime(0.18,now+0.015);
+        gain.gain.exponentialRampToValueAtTime(0.0001,now+0.28);
+        osc.connect(gain);
+        gain.connect(alertAudioContext.destination);
+        osc.start(now);
+        osc.stop(now+0.3);
+    }catch(error){console.warn("Alert sound unavailable:",error)}
+}
+
+function browserNotify(title,message,type="warning"){
+    if(browserAlertsEnabled){
+        playAlertSound(type);
+        if("Notification" in window && Notification.permission==="granted"){
+            try{
+                new Notification(title,{body:message,tag:"smartgrow-"+title});
+            }catch(error){console.warn("Notification failed:",error)}
+        }
+    }
+    showAlert("sensorAlert",message,type);
+    addLog(title+": "+message);
+}
+
+function processSensorAlerts(temperature,humidity,water){
+    const noWater=!water;
+    const highTemp=Number.isFinite(temperature)&&temperature>=ALERT_TEMP_C;
+    const highHumidity=Number.isFinite(humidity)&&humidity>=ALERT_HUMIDITY_PERCENT;
+
+    // Alert only when a condition starts, not every 3-second Firebase sync.
+    if(noWater && lastAlertState.water){
+        browserNotify("SmartGrow Water Alert","Water was not detected. Pump safety is active.","critical");
+    }else if(!noWater && !lastAlertState.water){
+        showAlert("sensorAlert","Water detected again. Pump safety condition cleared.","success");
+        addLog("Water detected again");
+    }
+
+    if(highTemp && !lastAlertState.temp){
+        browserNotify("SmartGrow Temperature Alert",
+            "Air temperature is high: "+temperature.toFixed(1)+" °C (limit "+ALERT_TEMP_C+" °C).","warning");
+    }else if(!highTemp && lastAlertState.temp){
+        showAlert("sensorAlert","Air temperature returned below the warning limit.","success");
+    }
+
+    if(highHumidity && !lastAlertState.humidity){
+        browserNotify("SmartGrow Humidity Alert",
+            "Air humidity is high: "+humidity.toFixed(1)+" % (limit "+ALERT_HUMIDITY_PERCENT+" %).","warning");
+    }else if(!highHumidity && lastAlertState.humidity){
+        showAlert("sensorAlert","Air humidity returned below the warning limit.","success");
+    }
+
+    // Highlight affected sensor cards.
+    $("airTemp")?.closest(".sensor-card")?.classList.toggle("sensor-warning",highTemp);
+    $("sensorTemp")?.closest(".sensor-card")?.classList.toggle("sensor-warning",highTemp);
+    $("airHumidity")?.closest(".sensor-card")?.classList.toggle("sensor-warning",highHumidity);
+    $("sensorHumidity")?.closest(".sensor-card")?.classList.toggle("sensor-warning",highHumidity);
+    $("waterStatus")?.closest(".sensor-card")?.classList.toggle("sensor-warning",noWater);
+    $("sensorWater")?.closest(".sensor-card")?.classList.toggle("sensor-warning",noWater);
+
+    lastAlertState={water,temp:highTemp,humidity:highHumidity};
+}
+
 
 const ROOT_PATH="smartgrow";
 const CONTROL_PATH=ROOT_PATH+"/control";
@@ -662,6 +779,8 @@ async function setMode(mode){
 async function toggleTimerEnabled(){
     const enabled=!Boolean(latestControl?.timer?.enabled);
     try{
+        // Only change the enabled state here. The interval/duration values
+        // belong to the website and are not read back from Firebase.
         await dbPatch(CONTROL_PATH+"/timer",{enabled});
         addLog("Pump timer "+(enabled?"enabled":"disabled"));
         showAlert("globalAlert",enabled?"Pump timer enabled.":"Pump timer disabled.","success");
@@ -671,9 +790,37 @@ async function toggleTimerEnabled(){
 
 async function saveTimer(){
     try{
-        const interval=Math.max(1,Number($("timerInterval").value)||30);
-        const duration=Math.max(1,Number($("timerDuration").value)||1);
-        await dbPatch(CONTROL_PATH+"/timer",{enabled:true,intervalMin:interval,durationMin:duration});
+        const intervalValue=Number($("timerInterval").value);
+        const durationValue=Number($("timerDuration").value);
+
+        if(!Number.isFinite(intervalValue)||intervalValue<1){
+            showAlert("globalAlert","Run interval must be at least 1 minute.","error");
+            return;
+        }
+        if(!Number.isFinite(durationValue)||durationValue<1){
+            showAlert("globalAlert","Run duration must be at least 1 minute.","error");
+            return;
+        }
+
+        const interval=Math.floor(intervalValue);
+        const duration=Math.floor(durationValue);
+
+        // These are the website's timer values. Save them locally first so
+        // Firebase sync can never replace them with another value.
+        websiteTimerInterval=interval;
+        websiteTimerDuration=duration;
+        localStorage.setItem("smartgrow_timer_interval",String(interval));
+        localStorage.setItem("smartgrow_timer_duration",String(duration));
+
+        // Also send the user's values to Firebase so the ESP can use them.
+        await dbPatch(CONTROL_PATH+"/timer",{
+            enabled:true,
+            intervalMin:interval,
+            durationMin:duration
+        });
+
+        $("timerInterval").value=websiteTimerInterval;
+        $("timerDuration").value=websiteTimerDuration;
         addLog("Pump timer saved: every "+interval+" min for "+duration+" min");
         showAlert("globalAlert","Pump timer saved and enabled.","success");
         await sync();
@@ -755,6 +902,7 @@ async function sync(){
 
 function updateSensors(s){
     const temperature=Number(s.temperature),humidity=Number(s.humidity),soil=Number(s.soilMoisture),soilRaw=Number(s.soilRaw),water=Boolean(s.waterDetected);
+    processSensorAlerts(temperature,humidity,water);
     $("airTemp").textContent=Number.isFinite(temperature)?temperature.toFixed(1):"--";
     $("airHumidity").textContent=Number.isFinite(humidity)?humidity.toFixed(1):"--";
     $("soilMoisture").textContent=Number.isFinite(soil)?soil.toFixed(0):"--";
@@ -820,12 +968,20 @@ function updateControls(c){
     $("controlWaterSafety").textContent=latestSensors.waterDetected?"WATER OK":"NO WATER — PUMP BLOCKED";
 
     $("timerStatus").textContent=timer.enabled?"ON":"OFF";
-    $("timerCycle").textContent=(timer.intervalMin||"--")+" min / "+(timer.durationMin||"--")+" min";
+    // Pump timer interval/duration are WEBSITE-OWNED settings.
+    // Firebase is intentionally NOT allowed to overwrite these two inputs.
+    // The website sends them to Firebase only when the user presses Save.
+    $("timerInterval").value=websiteTimerInterval;
+    $("timerDuration").value=websiteTimerDuration;
+    $("timerCycle").textContent=websiteTimerInterval+" min / "+websiteTimerDuration+" min";
     $("autoReason").textContent=latestSensors.autoReason||"--";
-    $("timerInterval").value=timer.intervalMin||30;
-    $("timerDuration").value=timer.durationMin||1;
-    $("soilOn").value=timer.soilOn??35;
-    $("soilOff").value=timer.soilOff??55;
+    // Soil thresholds remain Firebase-controlled.
+    if(timer.soilOn!==undefined && timer.soilOn!==null && timer.soilOn!==""){
+        $("soilOn").value=timer.soilOn;
+    }
+    if(timer.soilOff!==undefined && timer.soilOff!==null && timer.soilOff!==""){
+        $("soilOff").value=timer.soilOff;
+    }
     if(c.scheduleStart)$("scheduleStart").value=c.scheduleStart;
     if(c.scheduleEnd)$("scheduleEnd").value=c.scheduleEnd;
 }
