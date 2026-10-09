@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SmartGrow IoT</title>
-
+ 
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
-
+ 
 <style>
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -26,7 +26,7 @@ body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.62);z-inde
 .topbar{height:70px;padding:0 30px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.07);background:rgba(3,8,5,.72);backdrop-filter:blur(12px);position:sticky;top:0;z-index:30}
 .page{display:none;padding:28px;max-width:1600px;margin:auto}.page.active{display:block}
 .page-header{margin-bottom:25px}.page-header h2{margin:0 0 7px;font-size:27px}.page-header p{margin:0;color:#90a4ae;font-size:13px}
-.grid{display:grid;gap:18px}.grid-4{grid-template-columns:repeat(4,1fr)}.grid-3{grid-template-columns:repeat(3,1fr)}.grid-2{grid-template-columns:repeat(2,1fr)}
+.grid{display:grid;gap:18px}.grid-4{grid-template-columns:repeat(4,1fr)}.grid-3{grid-template-columns:repeat(3,1fr)}.grid-2{grid-template-columns:repeat(2,1fr)}.grid-1{grid-template-columns:1fr}
 .card{background:rgba(9,17,12,.88);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;box-shadow:0 10px 35px rgba(0,0,0,.18)}
 .sensor-card{position:relative;min-height:155px;overflow:hidden}.sensor-card::after{content:"";position:absolute;right:-30px;bottom:-45px;width:120px;height:120px;border-radius:50%;background:rgba(76,175,80,.08)}
 .card-label{color:#90a4ae;font-size:12px;margin-bottom:12px}.card-value{font-size:32px;font-weight:bold}.card-unit{color:#81c784;font-size:14px}
@@ -52,7 +52,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:11px;border-bottom:1px s
 .alert.warning{background:rgba(255,193,7,.14);color:#ffe082;border:1px solid rgba(255,193,7,.3)}
 .alert.critical{background:rgba(198,40,40,.18);color:#ffb4b4;border:1px solid rgba(239,83,80,.35)}
 .sensor-warning{border-color:rgba(255,193,7,.55)!important;box-shadow:0 0 0 1px rgba(255,193,7,.12),0 10px 35px rgba(0,0,0,.2)}
-
+ 
 .top-status{display:flex;align-items:center;gap:10px}.connection-pill{padding:7px 11px;border-radius:20px;background:#172019;color:#a5d6a7;font-size:11px}.connection-pill.offline{color:#ef9a9a;background:#211414}
 .mobile-menu{display:none}.footer{color:#607d70;text-align:center;padding:35px 10px 20px;font-size:11px}
 .record-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.summary-box{background:#08100b;border-radius:12px;padding:15px}.summary-box small{display:block;color:#78909c;margin-bottom:7px}.summary-box strong{font-size:20px}
@@ -65,33 +65,33 @@ table{width:100%;border-collapse:collapse}th,td{padding:11px;border-bottom:1px s
 @media(max-width:750px){.sidebar{transform:translateX(-100%);transition:.25s}.sidebar.open{transform:translateX(0)}.main{margin-left:0}.mobile-menu{display:block;background:transparent;border:0;color:white;cursor:pointer}.topbar{padding:0 17px}.page{padding:20px 14px}.grid-4,.grid-3,.grid-2,.settings-grid{grid-template-columns:1fr}.wide{grid-column:auto}.record-summary{grid-template-columns:1fr 1fr}}
 </style>
 </head>
-
+ 
 <body>
-
+ 
 <video id="bgVideo" autoplay muted loop playsinline>
     <source src="aquapnocvideo.webm" type="video/webm">
 </video>
-
+ 
 <aside class="sidebar" id="sidebar">
     <div class="logo">
         <div class="logo-icon"><i data-lucide="leaf"></i></div>
         <div><h1>SmartGrow</h1><span>IoT AQUAPONIC SYSTEM</span></div>
     </div>
-
+ 
     <div class="nav-title">MAIN</div>
     <button class="nav-btn active" onclick="showPage('overview',this)"><i data-lucide="layout-dashboard"></i>Overview</button>
     <button class="nav-btn" onclick="showPage('sensors',this)"><i data-lucide="activity"></i>Sensors</button>
     <button class="nav-btn" onclick="showPage('analytics',this)"><i data-lucide="bar-chart-3"></i>Analytics</button>
-
+ 
     <div class="nav-title">SYSTEM</div>
     <button class="nav-btn" onclick="showPage('control',this)"><i data-lucide="sliders-horizontal"></i>System Control</button>
     <button class="nav-btn" onclick="showPage('record',this)"><i data-lucide="clipboard-list"></i>Plant Record</button>
     <button class="nav-btn" onclick="showPage('settings',this)"><i data-lucide="settings"></i>Settings</button>
     <button class="nav-btn" onclick="showPage('diagnostics',this)"><i data-lucide="wrench"></i>Diagnostics</button>
 </aside>
-
+ 
 <main class="main">
-
+ 
 <header class="topbar">
     <button class="mobile-menu" onclick="toggleSidebar()"><i data-lucide="menu"></i></button>
     <div><strong id="pageTitle">Overview</strong></div>
@@ -99,38 +99,36 @@ table{width:100%;border-collapse:collapse}th,td{padding:11px;border-bottom:1px s
         <span class="connection-pill offline" id="connectionPill"><span class="dot off"></span> ESP Offline</span>
     </div>
 </header>
-
+ 
 <!-- OVERVIEW -->
 <section class="page active" id="overview">
     <div class="page-header">
         <h2>SmartGrow Overview</h2>
         <p>Real-time monitoring of your IoT aquaponic system.</p>
     </div>
-
+ 
     <div id="globalAlert" class="alert"></div>
-<div id="sensorAlert" class="alert"></div>
-<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px">
-    <button class="action secondary" onclick="enableBrowserAlerts()">Enable Browser Notifications + Sound</button>
-</div>
-
-
-    <div class="grid grid-4">
+    <div id="sensorAlert" class="alert"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px">
+        <button class="action secondary" onclick="enableBrowserAlerts()">Enable Browser Notifications + Sound</button>
+    </div>
+ 
+    <div class="grid grid-3">
         <div class="card sensor-card"><div class="icon-box"><i data-lucide="thermometer"></i></div><div class="card-label">AIR TEMPERATURE</div><div><span class="card-value" id="airTemp">--</span> <span class="card-unit">°C</span></div></div>
         <div class="card sensor-card"><div class="icon-box"><i data-lucide="droplets"></i></div><div class="card-label">AIR HUMIDITY</div><div><span class="card-value" id="airHumidity">--</span> <span class="card-unit">%</span></div></div>
-        <div class="card sensor-card"><div class="icon-box"><i data-lucide="sprout"></i></div><div class="card-label">SOIL MOISTURE</div><div><span class="card-value" id="soilMoisture">--</span> <span class="card-unit">%</span></div></div>
         <div class="card sensor-card"><div class="icon-box"><i data-lucide="waves"></i></div><div class="card-label">WATER DETECTION</div><div><span class="card-value" id="waterStatus">--</span></div></div>
     </div>
-
+ 
     <br>
-
+ 
     <div class="grid grid-3">
         <div class="card"><div class="card-label">PUMP</div><div class="control-row"><div><div class="control-title" id="pumpStatus">OFF</div><div class="control-description" id="pumpDescription">Water circulation pump</div></div><div class="switch" id="pumpSwitch" onclick="togglePumpFromOverview()"></div></div></div>
-        <div class="card"><div class="card-label">HUMIDITY AMPLIFIER</div><div class="control-row"><div><div class="control-title" id="ampStatus">OFF</div><div class="control-description">M11A0 humidifier status</div></div><div class="switch" id="ampSwitch" ></div></div></div>
+        <div class="card"><div class="card-label">HUMIDITY AMPLIFIER</div><div class="control-row"><div><div class="control-title" id="ampStatus">OFF</div><div class="control-description">M11A0 humidifier (separate from pump)</div></div><div class="switch" id="ampSwitch" onclick="toggleAmp()"></div></div></div>
         <div class="card"><div class="card-label">LAMP</div><div class="control-row"><div><div class="control-title" id="lampStatus">OFF</div><div class="control-description">Grow lighting</div></div><div class="switch" id="lampSwitch" onclick="toggleDevice('lampRequest')"></div></div></div>
     </div>
-
+ 
     <br>
-
+ 
     <div class="grid grid-2">
         <div class="card">
             <div class="card-label">SYSTEM INFORMATION</div>
@@ -141,7 +139,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:11px;border-bottom:1px s
             <div class="control-row"><span>Lamp</span><span id="infoLamp">--</span></div>
             <div class="control-row"><span>Last Update</span><span id="lastUpdate">--</span></div>
         </div>
-
+ 
         <div class="card">
             <div class="card-label">HARVEST PROGRESS</div>
             <div style="display:flex;justify-content:space-between;margin-bottom:10px"><strong id="harvestPercent">0%</strong><span id="harvestDays">0 / 96 h</span></div>
@@ -150,14 +148,13 @@ table{width:100%;border-collapse:collapse}th,td{padding:11px;border-bottom:1px s
         </div>
     </div>
 </section>
-
+ 
 <!-- SENSORS -->
 <section class="page" id="sensors">
     <div class="page-header"><h2>Sensor Monitoring</h2><p>Live data received from the ESP8266.</p></div>
-    <div class="grid grid-4">
+    <div class="grid grid-3">
         <div class="card sensor-card"><div class="icon-box"><i data-lucide="thermometer"></i></div><div class="card-label">AIR TEMPERATURE</div><span class="card-value" id="sensorTemp">--</span> <span class="card-unit">°C</span></div>
         <div class="card sensor-card"><div class="icon-box"><i data-lucide="droplets"></i></div><div class="card-label">AIR HUMIDITY</div><span class="card-value" id="sensorHumidity">--</span> <span class="card-unit">%</span></div>
-        <div class="card sensor-card"><div class="icon-box"><i data-lucide="sprout"></i></div><div class="card-label">SOIL MOISTURE</div><span class="card-value" id="sensorSoil">--</span> <span class="card-unit">%</span></div>
         <div class="card sensor-card"><div class="icon-box"><i data-lucide="waves"></i></div><div class="card-label">WATER</div><span class="card-value" id="sensorWater">--</span></div>
     </div>
     <br>
@@ -167,14 +164,12 @@ table{width:100%;border-collapse:collapse}th,td{padding:11px;border-bottom:1px s
         <tbody>
             <tr><td>Air Temperature</td><td id="rawTemp">--</td><td id="rawTempStatus">--</td></tr>
             <tr><td>Air Humidity</td><td id="rawHumidity">--</td><td id="rawHumidityStatus">--</td></tr>
-            <tr><td>Soil Raw</td><td id="rawSoil">--</td><td>Analog</td></tr>
-            <tr><td>Soil Moisture</td><td id="rawSoilPercent">--</td><td>Percentage</td></tr>
             <tr><td>Water Detection</td><td id="rawWater">--</td><td id="rawWaterStatus">--</td></tr>
             <tr><td>Heartbeat</td><td id="rawHeartbeat">--</td><td id="rawHeartbeatStatus">--</td></tr>
         </tbody></table>
     </div>
 </section>
-
+ 
 <!-- ANALYTICS -->
 <section class="page" id="analytics">
     <div class="page-header"><h2>Analytics</h2><p>Sensor history stored locally in this browser.</p></div>
@@ -183,16 +178,17 @@ table{width:100%;border-collapse:collapse}th,td{padding:11px;border-bottom:1px s
         <div class="card"><div class="card-label">AIR HUMIDITY</div><div class="chart-container"><canvas id="humidityChart"></canvas></div></div>
     </div>
     <br>
-    <div class="grid grid-2">
-        <div class="card"><div class="card-label">SOIL MOISTURE</div><div class="chart-container"><canvas id="soilChart"></canvas></div></div>
+    <div class="grid grid-1">
         <div class="card"><div class="card-label">WATER DETECTION</div><div class="chart-container"><canvas id="waterChart"></canvas></div></div>
     </div>
 </section>
-
+ 
 <!-- CONTROL -->
 <section class="page" id="control">
     <div class="page-header"><h2>System Control</h2><p>Control your aquaponic equipment remotely.</p></div>
-
+ 
+    <div id="controlAlert" class="alert"></div>
+ 
     <div class="grid grid-2">
         <div class="card">
             <div class="card-label">OPERATING MODE</div>
@@ -200,15 +196,15 @@ table{width:100%;border-collapse:collapse}th,td{padding:11px;border-bottom:1px s
                 <button type="button" class="mode-tab" id="modeAutoBtn" onclick="setMode('AUTO'); return false;">AUTO</button>
                 <button type="button" class="mode-tab" id="modeManualBtn" onclick="setMode('MANUAL'); return false;">MANUAL</button>
             </div>
-            <p class="small-note" id="modeDescription">AUTO controls the pump using the saved timer/soil settings. MANUAL follows the pump request.</p><div class="current-mode">CURRENT MODE: <strong id="currentModeLabel">--</strong></div>
+            <p class="small-note" id="modeDescription">AUTO controls the pump using the saved timer. MANUAL follows the pump request.</p><div class="current-mode">CURRENT MODE: <strong id="currentModeLabel">--</strong></div>
         </div>
-
+ 
         <div class="card">
             <div class="card-label">PUMP STATUS</div>
             <div class="control-row"><div><div class="control-title" id="controlPumpStatus">OFF</div><div class="control-description" id="controlPumpReason">Waiting for ESP data</div></div><span class="badge off" id="pumpReasonBadge">OFF</span></div>
             <div class="control-row"><span>Water Safety</span><strong id="controlWaterSafety">--</strong></div>
         </div>
-
+ 
         <div class="card">
             <div class="card-label">MANUAL PUMP REQUEST</div>
             <div class="control-row">
@@ -217,7 +213,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:11px;border-bottom:1px s
             </div>
             <div class="alert info show">The ESP8266 will stop the pump if water is not detected.</div>
         </div>
-
+ 
         <div class="card">
             <div class="card-label">PUMP TIMER</div>
             <div class="form-group"><label>Enable Timer</label><div class="switch" id="timerEnableSwitch" onclick="toggleTimerEnabled()"></div></div>
@@ -229,34 +225,25 @@ table{width:100%;border-collapse:collapse}th,td{padding:11px;border-bottom:1px s
             <button class="action" onclick="saveTimer()">Save Pump Timer</button>
             <button class="action secondary" onclick="runPumpOnce()" style="margin-left:6px">Run Once</button>
         </div>
-
-        <div class="card">
-            <div class="card-label">SOIL AUTOMATION</div>
-            <div class="grid grid-2">
-                <div><label>Start pump below (%)</label><input type="number" id="soilOn" min="0" max="100" value="35"></div>
-                <div><label>Stop pump above (%)</label><input type="number" id="soilOff" min="0" max="100" value="55"></div>
-            </div>
-            <p class="small-note">Optional AUTO protection: if soil drops below the start level, the ESP may run the pump until the stop level is reached. Timer can operate independently.</p>
-            <button class="action" onclick="saveSoilAutomation()">Save Soil Settings</button>
-        </div>
-
+ 
         <div class="card">
             <div class="card-label">HUMIDITY AMPLIFIER</div>
             <div class="control-row">
-                <div><div class="control-title">Amplifier Request</div><div class="control-description">M11A0 follows the pump state in the ESP firmware.</div></div>
-                <div class="switch" id="controlAmpSwitch" title="M11A0 follows the pump automatically"></div>
+                <div><div class="control-title">Amplifier Request</div><div class="control-description" id="controlAmpDescription">Turn the M11A0 ON or OFF separately from the pump.</div></div>
+                <div class="switch" id="controlAmpSwitch" onclick="toggleAmp()"></div>
             </div>
-            <p class="small-note">If your ESP firmware links the M11A0 to the pump, this request is informational. The amplifier will run whenever the pump is running.</p>
+            <div class="control-row"><span>Amplifier Status</span><strong id="controlAmpStatus">OFF</strong></div>
+            <p class="small-note">The M11A0 now works independently from the pump and from AUTO/MANUAL mode. The ESP8266 will switch it OFF if water is not detected.</p>
         </div>
-
+ 
         <div class="card">
             <div class="card-label">LAMP</div>
             <div class="control-row">
-                <div><div class="control-title">Lamp Request</div><div class="control-description">Manual lamp request, subject to the ESP lamp logic.</div></div>
+                <div><div class="control-title">Lamp Request</div><div class="control-description">Manual lamp request. Only works when Lamp Automation is OFF.</div></div>
                 <div class="switch" id="controlLampSwitch" onclick="toggleDevice('lampRequest')"></div>
             </div>
         </div>
-
+ 
         <div class="card">
             <div class="card-label">LAMP AUTOMATION</div>
             <div class="form-group"><label>Automatic Mode</label><div class="switch" id="lampAutoSwitch" onclick="toggleLampAuto()"></div></div>
@@ -266,7 +253,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:11px;border-bottom:1px s
             </div>
             <br><button class="action" onclick="saveSchedule()">Save Schedule</button>
         </div>
-
+ 
         <div class="card">
             <div class="card-label">TIMER STATUS</div>
             <div class="control-row"><span>Timer</span><span id="timerStatus">OFF</span></div>
@@ -275,7 +262,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:11px;border-bottom:1px s
         </div>
     </div>
 </section>
-
+ 
 <!-- RECORD -->
 <section class="page" id="record">
     <div class="page-header"><h2>Plant Record</h2><p>Record planting, harvest and project cost information.</p></div>
@@ -305,12 +292,12 @@ table{width:100%;border-collapse:collapse}th,td{padding:11px;border-bottom:1px s
         <div style="overflow:auto"><table><thead><tr><th>Plant</th><th>Planting</th><th>Harvest</th><th>Quantity</th><th>Cost</th><th>Yield</th><th>Revenue</th><th>Profit</th></tr></thead><tbody id="plantTable"></tbody></table></div>
     </div>
 </section>
-
+ 
 <!-- SETTINGS -->
 <section class="page" id="settings">
     <div class="page-header"><h2>Settings</h2><p>Connect this website to your Firebase Realtime Database.</p></div>
     <div id="settingsAlert" class="alert"></div>
-
+ 
     <div class="card">
         <div class="card-label">FIREBASE CONNECTION</div>
         <div class="settings-grid">
@@ -321,14 +308,14 @@ table{width:100%;border-collapse:collapse}th,td{padding:11px;border-bottom:1px s
         <br>
         <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="action" onclick="saveConfig()">Save Configuration</button><button class="action secondary" onclick="testFirebase()">Test Firebase</button><button class="action danger" onclick="resetConfig()">Reset</button></div>
     </div>
-
+ 
     <br>
     <div class="card">
         <div class="card-label">ANONYMOUS AUTHENTICATION</div>
         <div class="control-row"><div><div class="control-title" id="authStatus">Not connected</div><div class="control-description">The website uses Firebase Anonymous Authentication.</div></div><span class="status"><span class="dot off" id="authDot"></span><span id="authStatusSmall">Offline</span></span></div>
         <p style="font-size:11px;color:#78909c">Enable Anonymous Authentication in Firebase Console → Authentication → Sign-in method → Anonymous.</p>
     </div>
-
+ 
     <br>
     <div class="card">
         <div class="card-label">DATABASE STRUCTURE USED BY THIS WEBSITE + ESP</div>
@@ -337,10 +324,9 @@ table{width:100%;border-collapse:collapse}th,td{padding:11px;border-bottom:1px s
     ├── /sensors
     │     ├── temperature
     │     ├── humidity
-    │     ├── soilRaw
-    │     ├── soilMoisture
     │     ├── waterDetected
     │     ├── pumpOn
+    │     ├── ampRequest
     │     ├── m11a0Amp
     │     ├── lampOn
     │     ├── heartbeatAt
@@ -358,13 +344,11 @@ table{width:100%;border-collapse:collapse}th,td{padding:11px;border-bottom:1px s
           └── timer
                 ├── enabled
                 ├── intervalMin
-                ├── durationMin
-                ├── soilOn
-                └── soilOff
+                └── durationMin
 </pre>
     </div>
 </section>
-
+ 
 <!-- DIAGNOSTICS -->
 <section class="page" id="diagnostics">
     <div class="page-header"><h2>Diagnostics</h2><p>Firebase connection and system activity logs.</p></div>
@@ -376,42 +360,80 @@ table{width:100%;border-collapse:collapse}th,td{padding:11px;border-bottom:1px s
     <br>
     <div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><div class="card-label">EVENT LOG</div><div style="display:flex;gap:8px"><button class="action secondary" onclick="exportLogs()">Export</button><button class="action danger" onclick="clearLogs()">Clear</button></div></div><div class="log-box" id="eventLog"></div></div>
 </section>
-
+ 
 <div class="footer">SmartGrow IoT Aquaponic System</div>
 </main>
-
+ 
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-
+ 
 <script>
 /* ============================================================
-   SMARTGROW - SAME TEMPLATE, FIXED CONTROL/ONLINE LOGIC
+   SMARTGROW - CONTROL LOGIC
+ 
+   1. Pending writes: after you change something, the website keeps
+      showing YOUR value until Firebase confirms it (or 10 s pass).
+   2. Inputs (timer, schedule) are never overwritten while you are
+      typing or have unsaved edits.
+   3. Firebase token is refreshed (it expires after 1 hour).
+   4. Soil sensor removed.
+   5. NEW: Humidity amplifier (M11A0) has its own switch and its own
+      Firebase value (control/ampRequest). It is no longer tied to
+      the pump.
    ============================================================ */
-
+ 
 let cfg={dbUrl:"",apiKey:""};
 let firebaseApp=null;
 let firebaseAuth=null;
 let firebaseToken="";
 let anonymousUid="";
 let syncTimer=null;
+let syncBusy=false;
 let latestSensors={};
-let latestControl={};
-let websiteTimerInterval=Number(localStorage.getItem("smartgrow_timer_interval"))||30;
-let websiteTimerDuration=Number(localStorage.getItem("smartgrow_timer_duration"))||1;
+let latestControlRaw={};   // exactly what Firebase returned
+let latestControl={};      // Firebase data + your pending changes
 let charts={};
 let sensorHistory=[];
 let plantRecords=[];
 let eventLogs=[];
-let lastSensorSignature="";
-let lastSensorChange=0;
+ 
 // Browser alert settings/state.
-// Change these values if you want different warning limits.
 const ALERT_TEMP_C = 35;
 const ALERT_HUMIDITY_PERCENT = 80;
 let browserAlertsEnabled = false;
 let alertAudioContext = null;
 let lastAlertState = {water:true,temp:false,humidity:false};
-
+ 
+const ROOT_PATH="smartgrow";
+const CONTROL_PATH=ROOT_PATH+"/control";
+const SENSOR_PATH=ROOT_PATH+"/sensors";
+const CONFIG_KEY="smartgrow_connection_v4";
+const HISTORY_KEY="smartgrow_sensor_history_v5";
+const PLANT_KEY="smartgrow_plant_records_v4";
+const LOG_KEY="smartgrow_event_logs_v4";
+ 
+function $(id){return document.getElementById(id)}
+ 
+function escapeHtml(value){
+    return String(value??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/\'/g,"&#039;");
+}
+ 
+function setSwitch(id, enabled){
+    const el=$(id);
+    if(!el)return;
+    el.classList.toggle("on", Boolean(enabled));
+    el.setAttribute("aria-pressed", Boolean(enabled)?"true":"false");
+}
+ 
+function showAlert(id,message,type="info"){
+    const el=$(id); if(!el)return;
+    el.className="alert show "+type;
+    el.textContent=message;
+    setTimeout(()=>el.classList.remove("show"),5000);
+}
+ 
+/* ---------------- Browser alerts ---------------- */
+ 
 async function enableBrowserAlerts(){
     try{
         if("Notification" in window){
@@ -424,7 +446,6 @@ async function enableBrowserAlerts(){
         if(AudioCtx){
             alertAudioContext=alertAudioContext||new AudioCtx();
             if(alertAudioContext.state==="suspended") await alertAudioContext.resume();
-            // Short silent-ish initialization beep to unlock audio after user action.
             playAlertSound("info");
         }
         browserAlertsEnabled=true;
@@ -434,14 +455,14 @@ async function enableBrowserAlerts(){
         showAlert("globalAlert","Could not enable browser alerts: "+error.message,"error");
     }
 }
-
+ 
 function playAlertSound(type="warning"){
     try{
         const AudioCtx=window.AudioContext||window.webkitAudioContext;
         if(!AudioCtx)return;
         alertAudioContext=alertAudioContext||new AudioCtx();
         if(alertAudioContext.state==="suspended")return;
-
+ 
         const now=alertAudioContext.currentTime;
         const osc=alertAudioContext.createOscillator();
         const gain=alertAudioContext.createGain();
@@ -458,7 +479,7 @@ function playAlertSound(type="warning"){
         osc.stop(now+0.3);
     }catch(error){console.warn("Alert sound unavailable:",error)}
 }
-
+ 
 function browserNotify(title,message,type="warning"){
     if(browserAlertsEnabled){
         playAlertSound(type);
@@ -471,76 +492,46 @@ function browserNotify(title,message,type="warning"){
     showAlert("sensorAlert",message,type);
     addLog(title+": "+message);
 }
-
+ 
 function processSensorAlerts(temperature,humidity,water){
     const noWater=!water;
     const highTemp=Number.isFinite(temperature)&&temperature>=ALERT_TEMP_C;
     const highHumidity=Number.isFinite(humidity)&&humidity>=ALERT_HUMIDITY_PERCENT;
-
-    // Alert only when a condition starts, not every 3-second Firebase sync.
+ 
+    // Alert only when a condition starts, not every Firebase sync.
     if(noWater && lastAlertState.water){
-        browserNotify("SmartGrow Water Alert","Water was not detected. Pump safety is active.","critical");
+        browserNotify("SmartGrow Water Alert","Water was not detected. Pump and amplifier safety is active.","critical");
     }else if(!noWater && !lastAlertState.water){
-        showAlert("sensorAlert","Water detected again. Pump safety condition cleared.","success");
+        showAlert("sensorAlert","Water detected again. Safety condition cleared.","success");
         addLog("Water detected again");
     }
-
+ 
     if(highTemp && !lastAlertState.temp){
         browserNotify("SmartGrow Temperature Alert",
             "Air temperature is high: "+temperature.toFixed(1)+" °C (limit "+ALERT_TEMP_C+" °C).","warning");
     }else if(!highTemp && lastAlertState.temp){
         showAlert("sensorAlert","Air temperature returned below the warning limit.","success");
     }
-
+ 
     if(highHumidity && !lastAlertState.humidity){
         browserNotify("SmartGrow Humidity Alert",
             "Air humidity is high: "+humidity.toFixed(1)+" % (limit "+ALERT_HUMIDITY_PERCENT+" %).","warning");
     }else if(!highHumidity && lastAlertState.humidity){
         showAlert("sensorAlert","Air humidity returned below the warning limit.","success");
     }
-
-    // Highlight affected sensor cards.
+ 
     $("airTemp")?.closest(".sensor-card")?.classList.toggle("sensor-warning",highTemp);
     $("sensorTemp")?.closest(".sensor-card")?.classList.toggle("sensor-warning",highTemp);
     $("airHumidity")?.closest(".sensor-card")?.classList.toggle("sensor-warning",highHumidity);
     $("sensorHumidity")?.closest(".sensor-card")?.classList.toggle("sensor-warning",highHumidity);
     $("waterStatus")?.closest(".sensor-card")?.classList.toggle("sensor-warning",noWater);
     $("sensorWater")?.closest(".sensor-card")?.classList.toggle("sensor-warning",noWater);
-
+ 
     lastAlertState={water,temp:highTemp,humidity:highHumidity};
 }
-
-
-const ROOT_PATH="smartgrow";
-const CONTROL_PATH=ROOT_PATH+"/control";
-const SENSOR_PATH=ROOT_PATH+"/sensors";
-const CONFIG_KEY="smartgrow_connection_v4";
-const HISTORY_KEY="smartgrow_sensor_history_v4";
-const PLANT_KEY="smartgrow_plant_records_v4";
-const LOG_KEY="smartgrow_event_logs_v4";
-
-function $(id){return document.getElementById(id)}
-
-function escapeHtml(value){
-    return String(value??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/\'/g,"&#039;");
-}
-
-// Update the visual state of a SmartGrow switch.
-// This function is required by updateControls() and control actions.
-function setSwitch(id, enabled){
-    const el=$(id);
-    if(!el)return;
-    el.classList.toggle("on", Boolean(enabled));
-    el.setAttribute("aria-pressed", Boolean(enabled)?"true":"false");
-}
-
-function showAlert(id,message,type="info"){
-    const el=$(id); if(!el)return;
-    el.className="alert show "+type;
-    el.textContent=message;
-    setTimeout(()=>el.classList.remove("show"),5000);
-}
-
+ 
+/* ---------------- Navigation ---------------- */
+ 
 function showPage(page,button){
     document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
     const target=$(page); if(target)target.classList.add("active");
@@ -553,11 +544,11 @@ function showPage(page,button){
     if(page==="diagnostics")renderLogs();
     if(window.innerWidth<=750)$("sidebar").classList.remove("open");
 }
-
+ 
 function toggleSidebar(){$("sidebar").classList.toggle("open")}
-
+ 
 /* ---------------- Firebase ---------------- */
-
+ 
 function loadConfig(){
     try{
         const saved=JSON.parse(localStorage.getItem(CONFIG_KEY));
@@ -567,93 +558,106 @@ function loadConfig(){
     $("cfg-api-key").value=cfg.apiKey;
     $("cfg-path").value="/"+ROOT_PATH;
 }
-
+ 
 function getProjectId(dbUrl){
     try{
         const host=new URL(dbUrl).hostname;
         return host.split(".")[0].replace(/-default-rtdb$/,"");
     }catch(e){return ""}
 }
-
+ 
 function getAuthDomain(dbUrl){
     const project=getProjectId(dbUrl);
     return project?project+".firebaseapp.com":"";
 }
-
+ 
 async function initializeFirebase(){
     if(!cfg.dbUrl)throw new Error("Firebase Database URL is empty.");
     if(!cfg.apiKey)throw new Error("Firebase Web API Key is empty.");
-
+ 
     if(firebaseApp){
         try{await firebaseApp.delete()}catch(e){}
         firebaseApp=null;
     }
-
+ 
     firebaseApp=firebase.initializeApp({
         apiKey:cfg.apiKey,
         authDomain:getAuthDomain(cfg.dbUrl),
         databaseURL:cfg.dbUrl,
         projectId:getProjectId(cfg.dbUrl)
     },"smartgrowApp");
-
+ 
     firebaseAuth=firebase.auth(firebaseApp);
     await firebaseAuth.signInAnonymously();
-
+ 
     const user=firebaseAuth.currentUser;
     if(!user)throw new Error("Anonymous authentication failed.");
-
+ 
     anonymousUid=user.uid;
     firebaseToken=await user.getIdToken(true);
     updateAuthUI(true);
-
-    // Firebase authentication is the website-to-cloud connection.
-    // Do not wait for sensor polling before showing the controller online.
+ 
     updateConnection({});
     $("diagFirebase").textContent="Connected";
     addLog("Firebase Anonymous Authentication connected");
 }
-
+ 
+// Firebase ID tokens expire after about 1 hour. Without a refresh,
+// every read/write fails with 401 after that and controls stop working.
+async function refreshToken(){
+    try{
+        if(firebaseAuth&&firebaseAuth.currentUser){
+            firebaseToken=await firebaseAuth.currentUser.getIdToken(true);
+            return true;
+        }
+    }catch(error){
+        console.warn("Token refresh failed:",error);
+        addLog("Token refresh failed: "+error.message);
+    }
+    return false;
+}
+ 
 function updateAuthUI(connected){
     $("authDot").className=connected?"dot":"dot off";
     $("authStatus").textContent=connected?"Anonymous authentication active":"Not connected";
     $("authStatusSmall").textContent=connected?"Connected":"Offline";
     $("diagAuth").textContent=connected?"Connected":"Offline";
 }
-
+ 
 function firebaseUrl(path){
     if(!cfg.dbUrl)throw new Error("Firebase URL is not configured.");
     let url=cfg.dbUrl.trim().replace(/\/+$/,"")+"/"+path.replace(/^\/+/,"")+".json";
     if(firebaseToken)url+="?auth="+encodeURIComponent(firebaseToken);
     return url;
 }
-
+ 
 async function dbGet(path){
     const response=await fetch(firebaseUrl(path),{method:"GET",cache:"no-store"});
     if(!response.ok)throw new Error("Firebase GET failed: HTTP "+response.status);
     return response.json();
 }
-
+ 
 async function dbPut(path,value){
     const response=await fetch(firebaseUrl(path),{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(value)});
     if(!response.ok)throw new Error("Firebase PUT failed: HTTP "+response.status);
     return response.json();
 }
-
+ 
 async function dbPatch(path,value){
     const response=await fetch(firebaseUrl(path),{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(value)});
     if(!response.ok)throw new Error("Firebase PATCH failed: HTTP "+response.status);
     return response.json();
 }
-
+ 
 async function saveConfig(){
     cfg.dbUrl=$("cfg-db-url").value.trim();
     cfg.apiKey=$("cfg-api-key").value.trim();
-
+ 
     if(!cfg.dbUrl){showAlert("settingsAlert","Please enter your Firebase Database URL.","error");return}
     if(!cfg.apiKey){showAlert("settingsAlert","Please enter your Firebase Web API Key.","error");return}
-
+ 
     localStorage.setItem(CONFIG_KEY,JSON.stringify(cfg));
-
+ 
     try{
         await initializeFirebase();
         $("diagFirebase").textContent="Connected";
@@ -664,7 +668,7 @@ async function saveConfig(){
         showAlert("settingsAlert",error.message,"error");
     }
 }
-
+ 
 async function testFirebase(){
     try{
         if(!firebaseToken)await initializeFirebase();
@@ -678,7 +682,7 @@ async function testFirebase(){
         addLog("Firebase connection test failed: "+error.message);
     }
 }
-
+ 
 function resetConfig(){
     if(!confirm("Reset Firebase configuration?"))return;
     localStorage.removeItem(CONFIG_KEY);
@@ -689,40 +693,130 @@ function resetConfig(){
     updateConnection({});
     showAlert("settingsAlert","Configuration reset.","success");
 }
-
-/* ---------------- Controls ---------------- */
-
-async function getControl(){
-    return await dbGet(CONTROL_PATH).catch(()=>({}));
+ 
+/* ============================================================
+   PENDING WRITES
+ 
+   When you change a control, the value is remembered as "pending"
+   for 10 seconds. Every sync, Firebase data is merged with the
+   pending values, so an old/slow Firebase response can't flip your
+   switch or mode back. A pending value is dropped as soon as
+   Firebase confirms it, or after 10 seconds (then Firebase wins).
+   ============================================================ */
+ 
+const pending={};
+const PENDING_MS=10000;
+ 
+function getPath(obj,key){
+    return key.split(".").reduce((o,k)=>(o===undefined||o===null)?undefined:o[k],obj);
 }
-
-async function toggleDevice(name){
-    if(!firebaseToken){showAlert("globalAlert","Firebase is not connected.","error");return}
+ 
+function setPath(obj,key,value){
+    const parts=key.split(".");
+    let o=obj;
+    for(let i=0;i<parts.length-1;i++){
+        if(typeof o[parts[i]]!=="object"||o[parts[i]]===null)o[parts[i]]={};
+        o=o[parts[i]];
+    }
+    o[parts[parts.length-1]]=value;
+}
+ 
+function applyPending(raw){
+    const merged=JSON.parse(JSON.stringify(raw||{}));
+    const now=Date.now();
+    for(const key of Object.keys(pending)){
+        const p=pending[key];
+        if(now>p.until||getPath(merged,key)===p.value){
+            delete pending[key];
+            continue;
+        }
+        setPath(merged,key,p.value);
+    }
+    return merged;
+}
+ 
+// Write one or more control values. Keys use dots for nesting,
+// e.g. {"mode":"AUTO","timer.enabled":true}
+async function writeControl(values){
+    if(!firebaseToken){
+        showAlert("globalAlert","Firebase is not connected.","error");
+        return false;
+    }
+ 
+    for(const key of Object.keys(values)){
+        pending[key]={value:values[key],until:Date.now()+PENDING_MS};
+    }
+ 
+    // Update the screen immediately with the new values.
+    latestControl=applyPending(latestControlRaw);
+    updateControls(latestControl);
+ 
+    // Firebase multi-path update: "timer/enabled" only changes that one
+    // field and does not delete the rest of the timer object.
+    const body={};
+    for(const key of Object.keys(values)){
+        body[key.replace(/\./g,"/")]=values[key];
+    }
+ 
     try{
-        const control=await getControl();
-        const value=!Boolean(control?.[name]);
-        await dbPut(CONTROL_PATH+"/"+name,value);
-        setControlVisual(name,value);
+        await dbPatch(CONTROL_PATH,body);
+        return true;
+    }catch(error){
+        // Write failed: forget the pending values so the real state shows.
+        for(const key of Object.keys(values))delete pending[key];
+        showAlert("globalAlert","Could not save: "+error.message,"error");
+        addLog("Write failed: "+error.message);
+        await sync();
+        return false;
+    }
+}
+ 
+/* ---------------- Input protection ---------------- */
+ 
+// An input is only filled from Firebase when you are NOT typing in it
+// and have no unsaved edit in it.
+const dirty={};
+ 
+function bindDirty(id){
+    const el=$(id);
+    if(el)el.addEventListener("input",()=>{dirty[id]=true});
+}
+ 
+function fillInput(id,value){
+    const el=$(id);
+    if(!el||value===undefined||value===null||value==="")return;
+    if(dirty[id]||document.activeElement===el)return;
+    if(String(el.value)!==String(value))el.value=value;
+}
+ 
+/* ---------------- Controls ---------------- */
+ 
+async function toggleDevice(name){
+    const value=!Boolean(latestControl?.[name]);
+    const ok=await writeControl({[name]:value});
+    if(ok){
         addLog(name+" changed to "+(value?"ON":"OFF"));
         await sync();
-    }catch(error){
-        showAlert("globalAlert","Unable to control device: "+error.message,"error");
     }
 }
-
-function setControlVisual(name,value){
-    if(name==="pumpRequest"){
-        setSwitch("pumpSwitch",value);
-        setSwitch("controlPumpSwitch",value);
-        $("pumpStatus").textContent=value?"ON REQUEST":"OFF REQUEST";
+ 
+// NEW: separate humidity amplifier (M11A0) toggle.
+// Works in both AUTO and MANUAL mode and does not touch the pump.
+async function toggleAmp(){
+    const value=!Boolean(latestControl?.ampRequest);
+ 
+    if(value && latestSensors.waterDetected===false){
+        showAlert("globalAlert","No water detected. The amplifier will be switched OFF by the ESP for safety.","warning");
     }
-    if(name==="lampRequest"){
-        setSwitch("lampSwitch",value);
-        setSwitch("controlLampSwitch",value);
-        $("lampStatus").textContent=value?"ON REQUEST":"OFF REQUEST";
+ 
+    const ok=await writeControl({ampRequest:value});
+    if(ok){
+        addLog("Humidity amplifier (M11A0) request changed to "+(value?"ON":"OFF"));
+        showAlert("globalAlert",value?"Amplifier ON requested.":"Amplifier OFF requested.","success");
+        await sync();
     }
 }
-
+ 
 async function togglePumpFromOverview(){
     const mode=String(latestControl.mode||"MANUAL").toUpperCase();
     if(mode!=="MANUAL"){
@@ -731,153 +825,118 @@ async function togglePumpFromOverview(){
     }
     await togglePumpManual();
 }
-
+ 
 async function togglePumpManual(){
-    if(!firebaseToken){showAlert("globalAlert","Firebase is not connected.","error");return}
-    try{
-        const c=await getControl();
-        const value=!Boolean(c.pumpRequest);
-        setControlVisual("pumpRequest",value);
-        await dbPatch(CONTROL_PATH,{mode:"MANUAL",pumpRequest:value});
+    const value=!Boolean(latestControl.pumpRequest);
+    const ok=await writeControl({mode:"MANUAL",pumpRequest:value});
+    if(ok){
         addLog("Manual pump request changed to "+(value?"ON":"OFF"));
         showAlert("globalAlert",value?"Pump ON requested.":"Pump OFF requested.","success");
         await sync();
-    }catch(error){showAlert("globalAlert",error.message,"error")}
-}
-
-async function setMode(mode){
-    if(!firebaseToken){showAlert("globalAlert","Firebase is not connected.","error");return}
-    mode=String(mode).toUpperCase();
-    if(mode!=="AUTO" && mode!=="MANUAL")return;
-
-    // Show the selected mode immediately. The button is therefore responsive
-    // even if the ESP has not polled Firebase yet.
-    latestControl={...latestControl,mode};
-    if(mode==="AUTO") latestControl.pumpRequest=false;
-    updateControls(latestControl);
-
-    try{
-        // Write only the required Firebase fields.
-        await dbPut(CONTROL_PATH+"/mode",mode);
-
-        // AUTO must start with the manual pump request OFF.
-        if(mode==="AUTO") await dbPut(CONTROL_PATH+"/pumpRequest",false);
-
-        addLog("Operating mode changed to "+mode);
-        showAlert("globalAlert",mode+" mode saved to Firebase.","success");
-
-        // Refresh the rest of the dashboard, but do not require the ESP
-        // to answer before the mode remains highlighted.
-        await sync();
-        updateControls(latestControl);
-    }catch(error){
-        console.error("Mode change failed:",error);
-        showAlert("globalAlert","Mode could not be saved: "+error.message,"error");
     }
 }
-
+ 
+async function setMode(mode){
+    mode=String(mode).toUpperCase();
+    if(mode!=="AUTO" && mode!=="MANUAL")return;
+ 
+    // One atomic write. AUTO also clears the manual pump request.
+    const values={mode};
+    if(mode==="AUTO")values.pumpRequest=false;
+ 
+    const ok=await writeControl(values);
+    if(ok){
+        addLog("Operating mode changed to "+mode);
+        showAlert("globalAlert",mode+" mode saved to Firebase.","success");
+        await sync();
+    }
+}
+ 
 async function toggleTimerEnabled(){
     const enabled=!Boolean(latestControl?.timer?.enabled);
-    try{
-        // Only change the enabled state here. The interval/duration values
-        // belong to the website and are not read back from Firebase.
-        await dbPatch(CONTROL_PATH+"/timer",{enabled});
+    const ok=await writeControl({"timer.enabled":enabled});
+    if(ok){
         addLog("Pump timer "+(enabled?"enabled":"disabled"));
         showAlert("globalAlert",enabled?"Pump timer enabled.":"Pump timer disabled.","success");
         await sync();
-    }catch(error){showAlert("globalAlert",error.message,"error")}
+    }
 }
-
+ 
 async function saveTimer(){
-    try{
-        const intervalValue=Number($("timerInterval").value);
-        const durationValue=Number($("timerDuration").value);
-
-        if(!Number.isFinite(intervalValue)||intervalValue<1){
-            showAlert("globalAlert","Run interval must be at least 1 minute.","error");
-            return;
-        }
-        if(!Number.isFinite(durationValue)||durationValue<1){
-            showAlert("globalAlert","Run duration must be at least 1 minute.","error");
-            return;
-        }
-
-        const interval=Math.floor(intervalValue);
-        const duration=Math.floor(durationValue);
-
-        // These are the website's timer values. Save them locally first so
-        // Firebase sync can never replace them with another value.
-        websiteTimerInterval=interval;
-        websiteTimerDuration=duration;
-        localStorage.setItem("smartgrow_timer_interval",String(interval));
-        localStorage.setItem("smartgrow_timer_duration",String(duration));
-
-        // Also send the user's values to Firebase so the ESP can use them.
-        await dbPatch(CONTROL_PATH+"/timer",{
-            enabled:true,
-            intervalMin:interval,
-            durationMin:duration
-        });
-
-        $("timerInterval").value=websiteTimerInterval;
-        $("timerDuration").value=websiteTimerDuration;
+    const intervalValue=Number($("timerInterval").value);
+    const durationValue=Number($("timerDuration").value);
+ 
+    if(!Number.isFinite(intervalValue)||intervalValue<1){
+        showAlert("globalAlert","Run interval must be at least 1 minute.","error");
+        return;
+    }
+    if(!Number.isFinite(durationValue)||durationValue<1){
+        showAlert("globalAlert","Run duration must be at least 1 minute.","error");
+        return;
+    }
+ 
+    const interval=Math.floor(intervalValue);
+    const duration=Math.floor(durationValue);
+ 
+    const ok=await writeControl({
+        "timer.enabled":true,
+        "timer.intervalMin":interval,
+        "timer.durationMin":duration
+    });
+ 
+    if(ok){
+        dirty.timerInterval=false;
+        dirty.timerDuration=false;
+        $("timerInterval").value=interval;
+        $("timerDuration").value=duration;
         addLog("Pump timer saved: every "+interval+" min for "+duration+" min");
         showAlert("globalAlert","Pump timer saved and enabled.","success");
         await sync();
-    }catch(error){showAlert("globalAlert",error.message,"error")}
+    }
 }
-
-async function saveSoilAutomation(){
-    try{
-        let soilOn=Math.max(0,Math.min(100,Number($("soilOn").value)||35));
-        let soilOff=Math.max(0,Math.min(100,Number($("soilOff").value)||55));
-        if(soilOff<=soilOn){showAlert("globalAlert","Stop moisture must be higher than start moisture.","error");return}
-        await dbPatch(CONTROL_PATH+"/timer",{soilOn,soilOff});
-        addLog("Soil automation saved: "+soilOn+"% to "+soilOff+"%");
-        showAlert("globalAlert","Soil automation settings saved.","success");
-        await sync();
-    }catch(error){showAlert("globalAlert",error.message,"error")}
-}
-
+ 
 async function runPumpOnce(){
-    if(!firebaseToken){showAlert("globalAlert","Firebase is not connected.","error");return}
-    try{
-        await dbPatch(CONTROL_PATH,{mode:"MANUAL",pumpRequest:true});
-        addLog("Pump Run Once requested");
+    const ok=await writeControl({mode:"MANUAL",pumpRequest:true});
+    if(ok){
+        addLog("Pump ON requested (Run Once)");
         showAlert("globalAlert","Pump ON requested in MANUAL mode.","success");
         await sync();
-    }catch(error){showAlert("globalAlert",error.message,"error")}
+    }
 }
-
+ 
 async function toggleLampAuto(){
-    try{
-        const control=await getControl();
-        const value=!Boolean(control?.lampAuto);
-        await dbPut(CONTROL_PATH+"/lampAuto",value);
+    const value=!Boolean(latestControl?.lampAuto);
+    const ok=await writeControl({lampAuto:value});
+    if(ok){
         addLog("Lamp automatic mode "+(value?"enabled":"disabled"));
         showAlert("globalAlert",value?"Lamp automatic mode ON.":"Lamp automatic mode OFF.","success");
         await sync();
-    }catch(error){showAlert("globalAlert",error.message,"error")}
+    }
 }
-
+ 
 async function saveSchedule(){
     const start=$("scheduleStart").value,end=$("scheduleEnd").value;
     if(!start||!end){showAlert("globalAlert","Please select both lamp times.","error");return}
-    try{
-        await dbPatch(CONTROL_PATH,{scheduleStart:start,scheduleEnd:end});
+ 
+    const ok=await writeControl({scheduleStart:start,scheduleEnd:end});
+    if(ok){
+        dirty.scheduleStart=false;
+        dirty.scheduleEnd=false;
         showAlert("globalAlert","Lamp schedule saved.","success");
         addLog("Lamp schedule changed to "+start+" - "+end);
         await sync();
-    }catch(error){showAlert("globalAlert",error.message,"error")}
+    }
 }
-
+ 
 /* ---------------- Sync ---------------- */
-
+ 
 async function sync(){
-    if(!cfg.dbUrl||!firebaseToken)return;
+    if(!cfg.dbUrl||!firebaseToken||syncBusy)return;
+    syncBusy=true;
     try{
         const data=await dbGet(ROOT_PATH);
-        latestControl=data?.control||{};
+        latestControlRaw=data?.control||{};
+        latestControl=applyPending(latestControlRaw);
         latestSensors=data?.sensors||{};
         updateSensors(latestSensors);
         updateControls(latestControl);
@@ -887,34 +946,33 @@ async function sync(){
         $("diagFirebase").textContent="Connected";
     }catch(error){
         console.error("Sync error:",error);
-
-        // Authentication can still be valid even when a sensor read is denied.
-        // Keep the requested Firebase-based online state in that case.
+ 
         updateConnection({});
         $("diagFirebase").textContent="Connected / Sensor read error";
-
+ 
         const msg=String(error.message||error);
-        if(msg.includes("401")||msg.includes("403")){
+        if(msg.includes("401")){
+            // Token expired: get a new one, next sync will work.
+            await refreshToken();
+        }else if(msg.includes("403")){
             showAlert("globalAlert","Firebase is connected, but the database read was denied. Check RTDB rules.","error");
         }
+    }finally{
+        syncBusy=false;
     }
 }
-
+ 
 function updateSensors(s){
-    const temperature=Number(s.temperature),humidity=Number(s.humidity),soil=Number(s.soilMoisture),soilRaw=Number(s.soilRaw),water=Boolean(s.waterDetected);
+    const temperature=Number(s.temperature),humidity=Number(s.humidity),water=Boolean(s.waterDetected);
     processSensorAlerts(temperature,humidity,water);
     $("airTemp").textContent=Number.isFinite(temperature)?temperature.toFixed(1):"--";
     $("airHumidity").textContent=Number.isFinite(humidity)?humidity.toFixed(1):"--";
-    $("soilMoisture").textContent=Number.isFinite(soil)?soil.toFixed(0):"--";
     $("waterStatus").textContent=water?"DETECTED":"EMPTY";
     $("sensorTemp").textContent=Number.isFinite(temperature)?temperature.toFixed(1):"--";
     $("sensorHumidity").textContent=Number.isFinite(humidity)?humidity.toFixed(1):"--";
-    $("sensorSoil").textContent=Number.isFinite(soil)?soil.toFixed(0):"--";
     $("sensorWater").textContent=water?"DETECTED":"EMPTY";
     $("rawTemp").textContent=Number.isFinite(temperature)?temperature.toFixed(1)+" °C":"--";
     $("rawHumidity").textContent=Number.isFinite(humidity)?humidity.toFixed(1)+" %":"--";
-    $("rawSoil").textContent=Number.isFinite(soilRaw)?soilRaw:"--";
-    $("rawSoilPercent").textContent=Number.isFinite(soil)?soil.toFixed(0)+" %":"--";
     $("rawWater").textContent=water?"TRUE":"FALSE";
     $("rawWaterStatus").textContent=water?"Water detected":"No water";
     $("rawTempStatus").textContent=Number.isFinite(temperature)?"OK":"No data";
@@ -926,83 +984,68 @@ function updateSensors(s){
     $("rawHeartbeat").textContent=formatTimestamp(s.heartbeatAt||"");
     $("rawHeartbeatStatus").textContent=s.heartbeatAt?"Server heartbeat":"Using lastUpdate";
 }
-
+ 
 function updateControls(c){
     const mode=String(c.mode||"MANUAL").toUpperCase();
     const pumpRequest=Boolean(c.pumpRequest);
+    const ampRequest=Boolean(c.ampRequest);   // NEW: separate amplifier request
     const lamp=Boolean(c.lampRequest);
     const lampAuto=Boolean(c.lampAuto);
     const timer=c.timer||{};
     const pumpOn=Boolean(latestSensors.pumpOn);
     const ampOn=Boolean(latestSensors.m11a0Amp);
     const lampOn=Boolean(latestSensors.lampOn);
-
+ 
     setSwitch("pumpSwitch",pumpRequest);
     setSwitch("controlPumpSwitch",pumpRequest);
-    setSwitch("ampSwitch",ampOn);
-    setSwitch("controlAmpSwitch",ampOn);
+    setSwitch("ampSwitch",ampRequest);            // NEW: follows amp request
+    setSwitch("controlAmpSwitch",ampRequest);     // NEW: follows amp request
     setSwitch("lampSwitch",lamp);
     setSwitch("controlLampSwitch",lamp);
     setSwitch("lampAutoSwitch",lampAuto);
     setSwitch("timerEnableSwitch",Boolean(timer.enabled));
-
+ 
     $("pumpStatus").textContent=pumpOn?"ON":"OFF";
     $("ampStatus").textContent=ampOn?"ON":"OFF";
+    $("controlAmpStatus").textContent=ampOn?"ON":(ampRequest?"REQUESTED":"OFF");
     $("lampStatus").textContent=lampOn?"ON":"OFF";
     $("infoMode").textContent=mode;
     $("infoPump").textContent=pumpOn?"ON":(pumpRequest?"REQUESTED":"OFF");
-    $("infoAmp").textContent=ampOn?"ON":"OFF";
+    $("infoAmp").textContent=ampOn?"ON":(ampRequest?"REQUESTED":"OFF");
     $("infoLamp").textContent=lampOn?"ON":(lamp?"REQUESTED":"OFF");
-
+ 
     const auto=mode==="AUTO";
     $("modeAutoBtn").classList.toggle("active",auto);
     $("modeManualBtn").classList.toggle("active",!auto);
     $("currentModeLabel").textContent=mode;
     $("currentModeLabel").style.color=auto?"#81c784":"#ffffff";
-    $("modeDescription").textContent=auto?"AUTO is active. ESP controls the pump using timer and soil settings.":"MANUAL is active. The pump follows the ON/OFF request below, with water safety still enforced.";
-
+    $("modeDescription").textContent=auto?"AUTO is active. The ESP controls the pump using the timer.":"MANUAL is active. The pump follows the ON/OFF request below, with water safety still enforced.";
+ 
     $("controlPumpStatus").textContent=pumpOn?"ON":"OFF";
     $("controlPumpReason").textContent=latestSensors.autoReason||(!latestSensors.waterDetected?"NO WATER — SAFETY BLOCK":"Waiting for ESP data");
     $("pumpReasonBadge").textContent=pumpOn?(latestSensors.autoReason||"RUNNING"):(latestSensors.autoReason||"OFF");
     $("pumpReasonBadge").className="badge "+(pumpOn?"":"off");
-    $("controlWaterSafety").textContent=latestSensors.waterDetected?"WATER OK":"NO WATER — PUMP BLOCKED";
-
+    $("controlWaterSafety").textContent=latestSensors.waterDetected?"WATER OK":"NO WATER — PUMP + AMPLIFIER BLOCKED";
+ 
     $("timerStatus").textContent=timer.enabled?"ON":"OFF";
-    // Pump timer interval/duration are WEBSITE-OWNED settings.
-    // Firebase is intentionally NOT allowed to overwrite these two inputs.
-    // The website sends them to Firebase only when the user presses Save.
-    $("timerInterval").value=websiteTimerInterval;
-    $("timerDuration").value=websiteTimerDuration;
-    $("timerCycle").textContent=websiteTimerInterval+" min / "+websiteTimerDuration+" min";
+    $("timerCycle").textContent=(timer.intervalMin??"--")+" min / "+(timer.durationMin??"--")+" min";
     $("autoReason").textContent=latestSensors.autoReason||"--";
-    // Soil thresholds remain Firebase-controlled.
-    if(timer.soilOn!==undefined && timer.soilOn!==null && timer.soilOn!==""){
-        $("soilOn").value=timer.soilOn;
-    }
-    if(timer.soilOff!==undefined && timer.soilOff!==null && timer.soilOff!==""){
-        $("soilOff").value=timer.soilOff;
-    }
-    if(c.scheduleStart)$("scheduleStart").value=c.scheduleStart;
-    if(c.scheduleEnd)$("scheduleEnd").value=c.scheduleEnd;
+ 
+    // Inputs: filled from Firebase only when you are not editing them.
+    fillInput("timerInterval",timer.intervalMin);
+    fillInput("timerDuration",timer.durationMin);
+    fillInput("scheduleStart",c.scheduleStart);
+    fillInput("scheduleEnd",c.scheduleEnd);
 }
-
+ 
 /*
-  IMPORTANT ONLINE FIX:
-  Do NOT compare ESP millis() directly with browser Date.now().
-  The ESP should send heartbeatAt as Firebase ServerValue timestamp:
-      "heartbeatAt": { ".sv": "timestamp" }
-  The website checks heartbeatAt first.
-  If an older ESP does not send it, the website uses a changing lastUpdate
-  value as a fallback.
+  The website does not talk to the ESP directly. Firebase is the bridge.
+  Online status here means "website is connected to Firebase".
 */
 function updateConnection(sensors){
     const pill=$("connectionPill");
-
-    // The website does NOT try to connect to the ESP's local IP.
-    // Firebase is the communication bridge. If Firebase is connected and
-    // the sensors path exists, show the ESP as online as requested.
     const firebaseConnected=Boolean(firebaseToken);
-
+ 
     if(firebaseConnected){
         pill.className="connection-pill";
         pill.innerHTML='<span class="dot"></span> ESP Online';
@@ -1013,7 +1056,7 @@ function updateConnection(sensors){
         $("diagESP").textContent="Firebase not connected";
     }
 }
-
+ 
 function formatTimestamp(value){
     if(value===undefined||value===null||value==="")return "--";
     const n=Number(value);
@@ -1022,47 +1065,46 @@ function formatTimestamp(value){
     if(isNaN(date.getTime()))return "--";
     return date.toLocaleString("en-MY",{hour:"2-digit",minute:"2-digit",second:"2-digit",day:"2-digit",month:"2-digit",year:"numeric"});
 }
-
+ 
 /* ---------------- History / Charts ---------------- */
-
+ 
 function loadSensorHistory(){
     try{sensorHistory=JSON.parse(localStorage.getItem(HISTORY_KEY))||[]}catch(e){sensorHistory=[]}
 }
-
+ 
 function saveSensorHistory(s){
-    const item={time:Date.now(),temperature:Number.isFinite(Number(s.temperature))?Number(s.temperature):null,humidity:Number.isFinite(Number(s.humidity))?Number(s.humidity):null,soil:Number.isFinite(Number(s.soilMoisture))?Number(s.soilMoisture):null,water:Boolean(s.waterDetected)};
+    const item={time:Date.now(),temperature:Number.isFinite(Number(s.temperature))?Number(s.temperature):null,humidity:Number.isFinite(Number(s.humidity))?Number(s.humidity):null,water:Boolean(s.waterDetected)};
     if(!sensorHistory.length||Date.now()-sensorHistory[sensorHistory.length-1].time>2000){
         sensorHistory.push(item);
         if(sensorHistory.length>300)sensorHistory=sensorHistory.slice(-300);
         localStorage.setItem(HISTORY_KEY,JSON.stringify(sensorHistory));
     }
 }
-
+ 
 function updateCharts(){
     const labels=sensorHistory.map(x=>new Date(x.time).toLocaleTimeString("en-MY",{hour:"2-digit",minute:"2-digit"}));
     createChart("temperatureChart",labels,sensorHistory.map(x=>x.temperature),"Temperature °C");
     createChart("humidityChart",labels,sensorHistory.map(x=>x.humidity),"Humidity %");
-    createChart("soilChart",labels,sensorHistory.map(x=>x.soil),"Soil %");
     createChart("waterChart",labels,sensorHistory.map(x=>x.water?1:0),"Water Detection");
 }
-
+ 
 function createChart(canvasId,labels,values,label){
     const canvas=$(canvasId);if(!canvas)return;
     if(charts[canvasId])charts[canvasId].destroy();
     charts[canvasId]=new Chart(canvas,{type:"line",data:{labels,datasets:[{label,data:values,tension:.35,pointRadius:2,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:"#b0bec5"}}},scales:{x:{ticks:{color:"#78909c",maxTicksLimit:8},grid:{color:"rgba(255,255,255,.05)"}},y:{ticks:{color:"#78909c"},grid:{color:"rgba(255,255,255,.05)"}}}}});
 }
-
+ 
 /* ---------------- Plant records ---------------- */
-
+ 
 function loadPlantRecords(){try{plantRecords=JSON.parse(localStorage.getItem(PLANT_KEY))||[]}catch(e){plantRecords=[]}}
-
+ 
 function savePlantRecord(){
     const record={plant:$("plantName").value.trim(),planting:$("plantDate").value,harvest:$("harvestDate").value,quantity:Number($("plantQuantity").value)||0,cost:Number($("plantCost").value)||0,yield:Number($("plantYield").value)||0,price:Number($("plantPrice").value)||0,notes:$("plantNotes").value.trim(),created:Date.now()};
     if(!record.plant){showAlert("globalAlert","Enter a plant name.","error");return}
     plantRecords.push(record);localStorage.setItem(PLANT_KEY,JSON.stringify(plantRecords));renderPlantRecords();addLog("Plant record added: "+record.plant);
     ["plantName","plantDate","harvestDate","plantQuantity","plantCost","plantYield","plantPrice","plantNotes"].forEach(id=>$(id).value="");
 }
-
+ 
 function renderPlantRecords(){
     const table=$("plantTable");if(!table)return;
     table.innerHTML="";let totalCost=0,totalYield=0,totalRevenue=0;
@@ -1078,12 +1120,12 @@ function renderPlantRecords(){
     $("totalRevenue").textContent="RM "+totalRevenue.toFixed(2);
     $("totalProfit").textContent="RM "+(totalRevenue-totalCost).toFixed(2);
 }
-
+ 
 function clearPlantRecords(){
     if(!confirm("Delete all plant records?"))return;
     plantRecords=[];localStorage.removeItem(PLANT_KEY);renderPlantRecords();addLog("All plant records cleared");
 }
-
+ 
 function updateHarvestProgress(){
     if(!plantRecords.length){$("harvestPercent").textContent="0%";$("harvestDays").textContent="0 / 96 h";$("harvestProgress").style.width="0%";return}
     const latest=plantRecords[plantRecords.length-1];if(!latest.planting)return;
@@ -1092,28 +1134,28 @@ function updateHarvestProgress(){
     $("harvestDays").textContent=Math.min(96,Math.round(hours))+" / 96 h";
     $("harvestProgress").style.width=percent+"%";
 }
-
+ 
 /* ---------------- Logs ---------------- */
-
+ 
 function loadLogs(){try{eventLogs=JSON.parse(localStorage.getItem(LOG_KEY))||[]}catch(e){eventLogs=[]}}
-
+ 
 function addLog(message){
     eventLogs.unshift({time:Date.now(),message:String(message)});
     if(eventLogs.length>300)eventLogs=eventLogs.slice(0,300);
     localStorage.setItem(LOG_KEY,JSON.stringify(eventLogs));renderLogs();
 }
-
+ 
 function renderLogs(){
     const box=$("eventLog");if(!box)return;
     if(!eventLogs.length){box.innerHTML='<div class="log-item">No events.</div>';return}
     box.innerHTML=eventLogs.map(item=>`<div class="log-item"><span class="log-time">${formatTimestamp(item.time)}</span>${escapeHtml(item.message)}</div>`).join("");
 }
-
+ 
 function clearLogs(){
     if(!confirm("Clear all event logs?"))return;
     eventLogs=[];localStorage.removeItem(LOG_KEY);renderLogs();
 }
-
+ 
 function exportLogs(){
     const rows=[["Time","Event"]];
     eventLogs.forEach(item=>rows.push([formatTimestamp(item.time),item.message]));
@@ -1121,20 +1163,24 @@ function exportLogs(){
     const blob=new Blob([csv],{type:"text/csv;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");
     a.href=url;a.download="smartgrow-event-log.csv";a.click();URL.revokeObjectURL(url);
 }
-
+ 
 /* ---------------- Start ---------------- */
-
+ 
 function startSync(){
     if(syncTimer)clearInterval(syncTimer);
     sync();
     syncTimer=setInterval(sync,3000);
 }
-
+ 
 async function initialize(){
     loadConfig();loadSensorHistory();loadPlantRecords();loadLogs();
     renderPlantRecords();renderLogs();updateHarvestProgress();
+ 
+    // Protect these inputs from being overwritten while editing.
+    ["timerInterval","timerDuration","scheduleStart","scheduleEnd"].forEach(bindDirty);
+ 
     lucide.createIcons();
-
+ 
     if(cfg.dbUrl&&cfg.apiKey){
         try{
             await initializeFirebase();
@@ -1146,9 +1192,11 @@ async function initialize(){
         }
     }
 }
-
+ 
 initialize();
 setInterval(updateHarvestProgress,60000);
+setInterval(refreshToken,40*60*1000);   // refresh login token every 40 minutes
 </script>
 </body>
 </html>
+ 
